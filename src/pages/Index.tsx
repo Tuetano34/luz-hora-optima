@@ -7,6 +7,7 @@ import { PriceChart } from "@/components/price-chart";
 import { PriceIndicator } from "@/components/price-indicator";
 import { BestHoursCard } from "@/components/best-hours-card";
 import { PricesSummary } from "@/components/prices-summary";
+import { HourlyPriceBreakdown } from "@/components/hourly-price-breakdown";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +16,7 @@ import { Calendar, DatabaseZap, ArrowRight, CalendarClock } from "lucide-react";
 const Index = () => {
   const { todayPrices, tomorrowPrices, currentHour, loading, error, refreshPrices } = usePrices();
   const [activeTab, setActiveTab] = useState("today");
+  const [showHourlyBreakdown, setShowHourlyBreakdown] = useState(false);
 
   // Format today's date nicely
   const today = new Date();
@@ -36,6 +38,11 @@ const Index = () => {
   // Function for refreshing data
   const handleRefresh = () => {
     refreshPrices();
+  };
+
+  // Toggle hourly breakdown view
+  const toggleHourlyBreakdown = () => {
+    setShowHourlyBreakdown(prev => !prev);
   };
 
   return (
@@ -121,9 +128,18 @@ const Index = () => {
                       Mañana
                     </TabsTrigger>
                   </TabsList>
-                  <Button variant="outline" size="sm" onClick={handleRefresh}>
-                    Actualizar
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant={showHourlyBreakdown ? "default" : "outline"} 
+                      size="sm" 
+                      onClick={toggleHourlyBreakdown}
+                    >
+                      {showHourlyBreakdown ? "Ver gráfico" : "Ver desglose por horas"}
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={handleRefresh}>
+                      Actualizar
+                    </Button>
+                  </div>
                 </div>
 
                 <TabsContent value="today" className="mt-0">
@@ -135,7 +151,11 @@ const Index = () => {
                   </div>
                   
                   <div className="mb-6">
-                    <PriceChart prices={todayPrices} currentHour={currentHour} />
+                    {showHourlyBreakdown ? (
+                      <HourlyPriceBreakdown prices={todayPrices} currentHour={currentHour} />
+                    ) : (
+                      <PriceChart prices={todayPrices} currentHour={currentHour} />
+                    )}
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -158,7 +178,11 @@ const Index = () => {
                       </div>
                       
                       <div className="mb-6">
-                        <PriceChart prices={tomorrowPrices} />
+                        {showHourlyBreakdown ? (
+                          <HourlyPriceBreakdown prices={tomorrowPrices} />
+                        ) : (
+                          <PriceChart prices={tomorrowPrices} />
+                        )}
                       </div>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
